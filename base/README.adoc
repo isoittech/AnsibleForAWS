@@ -39,11 +39,11 @@
 . ansible-playbook site.ymlを実行する。
 
 === 個人設定（修正必須）
-* base/host_vars/localhost.yml
-* base/hosts/dev/ec2.ini
-* base/roles/ec2/defaults/main.yml
-* base/ansible.cfg
-* base/site.yml
-* VMs/provisioning/aws_profiles/config
-* VMs/provisioning/aws_profiles/credentials
-* VMs/provisioning/Vagrantfile
+* base/ansible/host_vars/localhost.yml
+* base/ansible/hosts/dev/ec2.ini
+* base/ansible/roles/ec2/defaults/main.yml
+* base/ansible/ansible.cfg
+* base/ansible/site.yml
+* base/VMs/provisioning/aws_profiles/config
+* base/VMs/provisioning/aws_profiles/credentials
+* base/VMs/provisioning/Vagrantfile
