@@ -1,0 +1,132 @@
+#################################################
+#################################################
+# Special Thanks
+# https://qiita.com/zaki-lknr/items/cdf4eac2d2f2020ac7be
+#################################################
+#################################################
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+
+  # shared folder
+  #################################################
+  #################################################
+  # ホスト・VM間の共有フォルダ設定
+  #################################################
+  #################################################
+  # mount optionはデフォルトで777となっており、ansibleの実行で不具合（パーミッション緩すぎ）が出る。
+  config.vm.synced_folder "../../", "/vagrant", type: "virtualbox", owner: "vagrant", group: "vagrant", mount_options: ['dmode=755', 'fmode=644']
+  
+  
+  #################################################
+  #################################################
+  # VM間のsshアクセスのため同じ秘密鍵・公開鍵を設定
+  #################################################
+  #################################################
+  #   Vagrantのssh関連は特に指定がない場合は、VM毎に秘密鍵・公開鍵が作成され、ホストOSからのvagrant ssh [hostname]実行によるsshアクセスはVM毎の公開鍵で行われる。
+  #   そのため、この公開鍵ではVM間の公開鍵認証には使えない。
+  #   また、秘密鍵はVM内には保持されず、ホストOS上のみに配置される。
+
+  # 各VMで同じ秘密鍵・公開鍵を使うための設定
+  #   このconfig.ssh.insert_keyをfalseにする設定によって、「VM毎にsshの秘密鍵・公開鍵を作成・設定する」という動作が無くなる。
+  config.ssh.insert_key = false
+  #   次に、config.ssh.private_key_pathで、替わりの秘密鍵を指定する。(ちなみにデフォルトで~/.vagrant.d/insecure_private_keyの鍵が使用される)
+  #   Vagrantをインストールすると、ホームディレクトリ以下~/.vagrant.d/insecure_private_keyにパスフレーズなしの共通設定用の鍵が生成されている。それを使用する。
+  config.ssh.private_key_path = "~/.vagrant.d/insecure_private_key"
+
+  # copy to private-key
+  #   このままでは、ホストOS→ゲストOS間のsshアクセスで使用するssh鍵が、各ゲストOSで同じになっただけで、
+  #   各ゲストOS上にこの秘密鍵がまだないため、ゲストOS同士で公開鍵認証ができない。(秘密鍵がホストOS上にしかないため)
+  #   そのため、このホストOS上の秘密鍵を、作成したVM上にコピーする処理を追加する。
+  config.vm.provision "file", source: "~/.vagrant.d/insecure_private_key", destination: "/home/vagrant/.ssh/id_rsa"
+  config.vm.provision "file", source: "/＜＜ホストOS上の秘密鍵ファイル（.pem）＞＞", destination: "/home/vagrant/.ssh/＜＜秘密鍵＞＞.pem" # これはAWSアクセス用であり、VM間のsshアクセスに無関係
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    chmod 600 $HOME/.ssh/id_rsa
+    chmod 600 $HOME/.ssh/＜＜秘密鍵＞＞.pem
+  SHELL
+
+  #################################################
+  #################################################
+  # VMのホスト名・IPアドレス設定
+  #################################################
+  #################################################
+  config.vm.hostname = "provisioning.localdomain"
+
+  config.vbguest.auto_update = true
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "provisioning"
+    v.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
+  config.vm.network "private_network", ip: "192.168.149.10"
+
+  
+  #################################################
+  #################################################
+  # ソフトウェアインストール
+  #################################################
+  #################################################
+  # Server Provisioning
+  config.vm.provision "shell", inline: <<-SHELL
+  #! /bin/bash
+  
+  echo "####################"
+  echo "install middleware"
+  echo "####################"
+  echo "- pip"
+  type pip > /dev/null 2>&1
+  if [ $? != 0 ]; then
+    curl -kL https://bootstrap.pypa.io/get-pip.py | python
+    echo "OK"
+  else
+    echo "already exist"
+    pip install --upgrade pip
+  fi
+  
+  # Install ansible
+  echo "- ansible"
+  type ansible > /dev/null 2>&1
+  if [ $? != 0 ]; then
+    pip install ansible
+    pip install boto
+    pip install boto3
+    pip install openpyxl
+    pip install jinja2
+    echo "OK"
+  else
+    echo "already exist"
+  fi
+  
+  # Install AWS CLI
+  echo "- AWS CLI"
+  type aws > /dev/null 2>&1
+  if [ $? != 0 ]; then
+    pip install awscli
+    echo "OK"
+  else
+    echo "already exist"
+  fi
+  
+  
+  
+  #################################################
+  # その他
+  #################################################
+  # Especially nothing
+
+  SHELL
+
+
+  #################################################
+  #################################################
+  # AWS CLI Profile
+  #################################################
+  #################################################
+  # copy AWS CLI Profile
+  config.vm.provision "file", source: "./aws_profiles/credentials", destination: "/home/vagrant/.aws/credentials"
+  config.vm.provision "file", source: "./aws_profiles/config", destination: "/home/vagrant/.aws/config"
+
+
+end

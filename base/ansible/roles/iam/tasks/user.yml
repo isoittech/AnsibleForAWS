@@ -1,0 +1,9 @@
+---
+- name: "IAM Users"
+  iam:
+    iam_type: user
+    name: "{{ item.name }}"
+    state: present
+    profile: "{{ iam.profile }}"
+  with_items:
+    - "{{ iam.users }}"

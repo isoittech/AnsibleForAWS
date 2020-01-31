@@ -1,0 +1,49 @@
+= AnsibleでAWSインフラ構築（基本）
+
+== 目的
+
+基本的なAWS構成作業をAnsibleにより自動化するためのベースとして使うため。
+
+== 前提
+
+=== 方針
+* VagrantによりVMをローカルPCを構築し、そのVMからAnsibleを実行する。
+
+=== 準備作業
+
+* Ansible実行用のIAMユーザが作成済みである。
+* 秘密鍵がAWSにインポート済みである。
+
+== AWS構成作業自動化対象
+
+* IAMユーザ作成
+* IAMロール作成
+* IAMポリシー作成
+* VPC作成
+* サブネット作成
+* インターネットゲートウェイ作成
+* ルートテーブル作成
+* セキュリティグループ作成
+* EC2インスタンス作成
+* EC2インスタンスへのyum実行
+
+== 利用方法
+
+=== 基本的な流れ
+
+. 個人設定を修正する。
+. vagrant upする。
+. Vagrant VM にSSHログインする。
+. /vagrant/base/setup.shを実行する。
+. /home/vagrant/ansibleに移動する。
+. ansible-playbook site.ymlを実行する。
+
+=== 個人設定（修正必須）
+* base/host_vars/localhost.yml
+* base/hosts/dev/ec2.ini
+* base/roles/ec2/defaults/main.yml
+* base/ansible.cfg
+* base/site.yml
+* VMs/provisioning/aws_profiles/config
+* VMs/provisioning/aws_profiles/credentials
+* VMs/provisioning/Vagrantfile

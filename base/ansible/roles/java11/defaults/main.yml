@@ -1,0 +1,5 @@
+---
+java:
+  corretto: https://d3pxv6yz143wms.cloudfront.net/11.0.2.9.3/java-11-amazon-corretto-devel-11.0.2.9-3.x86_64.rpm
+  home: /usr/lib/jvm/java-11-amazon-corretto
+  version: '11.0.2'

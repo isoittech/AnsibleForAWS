@@ -1,0 +1,16 @@
+---
+iam:
+  profile: default
+  users:
+    - name: user01
+      << : &POLICY1
+        policies:
+        - cloudwatch-logs
+        - codedeploy
+    - name: user02
+      << : *POLICY1
+    - name: user03
+      << : *POLICY1
+
+# 「POLICY1」のこの使い方は冗長であるが、YAMLのマージ記法の使い方のメモのために残しておく。
+# 本来はIAM GROUP機能を使えば各ユーザに共通の設定ができる。

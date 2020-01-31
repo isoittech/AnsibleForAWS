@@ -1,0 +1,3 @@
+= AnsibleでAWSインフラ構築
+
+link:base/README.adoc[base/README.adoc]参照

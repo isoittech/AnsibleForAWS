@@ -1,0 +1,13 @@
+---
+- name: "IAM Policy"
+  iam_policy:
+    iam_type: user
+    iam_name: "{{ item.0.name}}"
+    # (ex) policy_name: user01_codedeploy
+    policy_name: "{{ item.0.name }}_{{ item.1 }}"
+    policy_json: "{{ lookup( 'file', '../policyfile/' + item.1 + '.json') }}"
+    state: present
+    profile: "{{ iam.profile }}"
+  with_subelements:
+    - "{{ iam.users }}"
+    - policies

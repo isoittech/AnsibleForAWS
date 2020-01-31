@@ -1,0 +1,7 @@
+---
+- name: IAM Role, develop
+  iam:
+    iam_type: role
+    name: develop
+    state: present
+    profile: "{{ iam.profile }}"

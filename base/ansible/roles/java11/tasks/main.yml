@@ -1,0 +1,30 @@
+- name: Check Java install.
+  find:
+    paths: /usr/bin
+    patterns: 'java'
+    file_type: any
+  register: java_cmd
+
+- name: Check java version.
+  command: 'java -version'
+  register: java_vsn
+  when: "java_cmd.files|length > 0"
+
+- debug:
+    msg: "java_vsn = {{ java_vsn }}"
+
+- name: Install corret.
+  yum:
+    name: '{{ java.corretto }}'
+    state: present
+  when: "(java_cmd.files|length == 0) or (java_vsn is defined and '{{ java.version }}' not in java_vsn.stderr)"
+
+- name: Alternatives.
+  alternatives:
+    name: '{{ item }}'
+    link: "/usr/bin/{{ item }}"
+    path: "{{ java.home }}/bin/{{ item }}"
+  with_items:
+    - java
+    - javac
+  when: "(java_cmd.files|length == 0) or (java_vsn is defined and '{{ java.version }}' not in java_vsn.stderr)"

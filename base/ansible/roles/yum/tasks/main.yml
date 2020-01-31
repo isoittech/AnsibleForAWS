@@ -1,0 +1,12 @@
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+# 必要なときコメント解除
+# - name: install yum packages
+#   yum:
+#     name: '{{ item.name }}'
+#     state: '{{ item.state | default("present") }}'
+#   with_items: '{{ yum_packages }}'
+
