@@ -39,11 +39,15 @@
 . ansible-playbook site.ymlを実行する。
 
 === 個人設定（修正必須）
-* base/ansible/host_vars/localhost.yml
-* base/ansible/hosts/dev/ec2.ini
-* base/ansible/roles/ec2/defaults/main.yml
-* base/ansible/ansible.cfg
-* base/ansible/site.yml
-* base/VMs/provisioning/aws_profiles/config
-* base/VMs/provisioning/aws_profiles/credentials
-* base/VMs/provisioning/Vagrantfile
+
+下記ファイルを編集した上で拡張子「.yours」を除去する。 +
+編集対象はカッコ<<>>で囲んである。
+
+* base/ansible/host_vars/localhost.yml.yours
+* base/ansible/hosts/dev/ec2.ini.yours
+* base/ansible/roles/ec2/defaults/main.yml.yours
+* base/ansible/ansible.cfg.yours
+* base/ansible/site.yml.yours
+* base/VMs/provisioning/aws_profiles/config.yours
+* base/VMs/provisioning/aws_profiles/credentials.yours
+* base/VMs/provisioning/Vagrantfile.yours
