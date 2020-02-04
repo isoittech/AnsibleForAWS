@@ -17,5 +17,6 @@
 rm -rf /home/vagrant/ansible
 mkdir -p /home/vagrant/ansible
 
-cp -r /vagrant/base/* /home/vagrant/ansible/
+cp -r /vagrant/ansible/* /home/vagrant/ansible/
+chmod +x /home/vagrant/ansible/setup.sh
 chmod +x /home/vagrant/ansible/hosts/dev/ec2.py
