@@ -5,3 +5,4 @@ start-aws-keypair.pem
 keypair/l4a.pem.pub
 keypair/start-aws-keypair.pem.pub
 VMs/ec2-sb-UdemyList/.vagrant/
+/base/sampleapp/sb-app/bin/
