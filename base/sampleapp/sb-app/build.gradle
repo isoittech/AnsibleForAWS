@@ -27,6 +27,7 @@ group = 'springio'
 bootJar {
     baseName = 'sb-app'
     version =  '0.1.0'
+    launchScript()
 }
 
 repositories {
