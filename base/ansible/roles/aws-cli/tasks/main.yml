@@ -1,0 +1,11 @@
+---
+- name: AWS CLIインストール状態確認
+  shell: which aws
+  check_mode: no
+  register: which_aws
+  failed_when: false
+  changed_when: false
+
+- name: AWS CLIインストール
+  shell: pip install awscli -U
+  when: which_aws.stdout == ""

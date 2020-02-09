@@ -1,5 +1,5 @@
 ---
-- name: create Amazon Web Services
+- name: Setting up basical Amazon Web Services
   hosts: localhost
   connection: local
   gather_facts: False
@@ -10,7 +10,7 @@
     - name: Refresh inventory
       meta: refresh_inventory
 
-- name: build sbapp
+- name: Building application host
   hosts: tag_Name_<<ec2 name as filter>>
   user: ec2-user
   become: True
@@ -18,3 +18,5 @@
   roles:
     - yum
     - java11
+    - aws-cli
+    - code-deploy

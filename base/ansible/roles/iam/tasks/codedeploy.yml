@@ -1,0 +1,86 @@
+---
+- name: Create service role for CodeDeploy
+  iam_role:
+    name: CodeDeployServiceRole
+    assume_role_policy_document: "{{ lookup( 'file', '../codedeploy/PolicyServiceRole.json') }}"
+    description: This is CodeDeploy Service Role
+
+
+- name: Attach AWSCodeDeployRole Policy to CodeDeploy service role 
+  shell: >-
+    aws iam attach-role-policy \
+     --role-name CodeDeployServiceRole \
+     --policy-arn arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+
+#######################################
+# アプリケーションが保存される Amazon S3 バケットへのアクセス権限を CodeDeploy に付与するためのロールとインスタンスプロファイルの作成
+# インスタンスプロファイルにより、Amazon EC2 は最初に起動されたときに、CodeDeploy-EC2-Instance-Profile という名前の IAM ロールを Amazon EC2 インスタンスに渡す。
+# https://docs.aws.amazon.com/ja_jp/codedeploy/latest/userguide/getting-started-create-iam-instance-profile.html
+#######################################
+- name: Search instance profile
+  shell: >-
+    aws iam list-instance-profiles \
+     | jq -r .InstanceProfiles[].InstanceProfileName \
+     | egrep --count 'CodeDeploy-EC2-Instance-Profile'
+  register: target_profile_count
+  changed_when: false
+  # always_run: yes
+
+- name: Delete IAM policy (for role for instance profile) when instance profile already existing
+  iam_policy:
+    iam_name: CodeDeploy-EC2-Instance-Role
+    iam_type: role
+    policy_name: CodeDeploy-EC2-Permissions
+    state: absent
+  when: target_profile_count.stdout == "1"
+
+- name: Delete IAM role (for instance profile) when instance profile already existing
+  iam_role:
+    name: CodeDeploy-EC2-Instance-Role
+    state: absent
+  when: target_profile_count.stdout == "1"
+
+- name: Delete instance profile when already existing
+  shell: >-
+    aws iam delete-instance-profile \
+     --instance-profile-name CodeDeploy-EC2-Instance-Profile
+  when: target_profile_count.stdout == "1"
+
+# IAM ROLEの作成 （Assume Role ポリシーを指定する）
+# ※IAM ROLE： AWSサービスに対するアクセス権。例えばどのS3バケットに何をして良いかなど。
+# ※AssumeRoleポリシー ：アクセス許可を委任するAWSサービスを規定する。
+#   ※※インラインポリシーで規定したアクセス権を"EC2サービスに"与えるための指定。
+# ※ここで作るロールの名前について。
+#   コンソールからのロール作成であればインスタンスプロファイル名と同名でよいが、CLIでインスタンスプロファイルを作成すると、
+#   「作成済み」エラーが発生するため、インスタンスプロファイル名とロール名を分ける事としている。
+- name: Create IAM role (for instance profile)
+  iam_role:
+    name: CodeDeploy-EC2-Instance-Role
+    assume_role_policy_document: "{{ lookup( 'file', role_path + '/codedeploy/EC2InstanceProfile_trust.json') }}"
+    state: present
+
+# インラインポリシーをROLEにアタッチ
+# ※インラインポリシー： ROLEに割り当てるアクセス権の詳細を規定する。個別に作成するポリシーで、ポリシー一覧に出てこない（管理ポリシーではないので）。
+# ※管理ポリシー： 複数ユーザやグループなどでの使い回しを想定したポリシー
+- name: Put role policy
+  shell: >-
+    aws iam put-role-policy \
+     --role-name CodeDeploy-EC2-Instance-Role \
+     --policy-name CodeDeploy-EC2-Permissions \
+     --policy-document file://{{ role_path }}/codedeploy/EC2InstanceProfile_permission.json
+
+# インスタンスプロファイルを作成
+# ※インスタンスプロファイル： EC2起動時にロール情報を渡すために使用
+# ※インスタンスプロファイルは、コンソールでロール作成時に自動生成されるが、CLIでは自分で作る必要がある。
+#   この対応をしない場合、EC2立ち上げ時にROLEを付与しようとしても、付与できない（コンソールではリストに表示されない）
+- name: Create instance profile
+  shell: >-
+    aws iam create-instance-profile \
+     --instance-profile-name CodeDeploy-EC2-Instance-Profile
+
+# IAM ROLEをインスタンスプロファイルに追加する
+- name: Add role to instance profile
+  shell: >-
+    aws iam add-role-to-instance-profile \
+     --instance-profile-name CodeDeploy-EC2-Instance-Profile \
+     --role-name CodeDeploy-EC2-Instance-Role
