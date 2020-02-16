@@ -25,7 +25,7 @@
     region: "{{ aws.common.region }}"
     image: "{{ aws.vpc.ec2.image }}"
     wait: yes
-    state: running
+    exact_count: 1
     wait_timeout: 300
     count_tag:
       Name: "{{ aws.vpc.ec2.name }}"
