@@ -12,6 +12,7 @@
 === 準備作業
 
 * Ansible実行用のIAMユーザが作成済みである。
+* 秘密鍵を作成済みである。
 * 秘密鍵がAWSにインポート済みである。
 
 == AWS構成作業自動化対象
@@ -26,6 +27,8 @@
 * セキュリティグループ作成
 * EC2インスタンス作成
 * EC2インスタンスへのyum実行
+* EC2インスタンス上にアプリケーション用グループ・ユーザ作成
+* EC2インスタンス上にアプリケーション用ユーザの公開鍵設定
 
 == 利用方法
 
@@ -51,3 +54,7 @@
 * base/VMs/provisioning/aws_profiles/config.yours
 * base/VMs/provisioning/aws_profiles/credentials.yours
 * base/VMs/provisioning/Vagrantfile.yours
+
+また、アプリケーション用ユーザの公開鍵設定として下記を実施する。 +
+  ※既存の秘密鍵から公開鍵を生成する
+  ssh-keygen -yf ${private_key_file} > base/roles/unix_users/files/public.j2

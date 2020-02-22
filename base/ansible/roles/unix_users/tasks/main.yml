@@ -1,0 +1,40 @@
+#Linuxユーザの作成
+- name: add a new user
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    state: "{{ item.state }}"
+    group: "{{ item.group }}"
+    comment: "{{ item.comment }}"
+  with_items:
+    - "{{ unix_users }}"
+
+#.sshフォルダの作成
+- name: mkdir .ssh
+  file:
+    dest: /home/{{ item.name }}/.ssh/
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    mode: 0700
+  with_items:
+    - "{{ unix_users }}"
+
+#.ssh以下にauthorized_keysファイルの作成
+- name: add authorized keys
+  file:
+    dest: /home/{{ item.name }}/.ssh/authorized_keys 
+    state: touch 
+    owner: "{{ item.name }}" 
+    group: "{{ item.group }}" 
+    mode: 0600
+  with_items:
+    - "{{ unix_users }}"
+
+#公開鍵を貼付け
+- name: copy publickey
+  copy: 
+    src: public.j2 
+    dest: /home/{{ item.name }}/.ssh/authorized_keys
+  with_items:
+    - "{{ unix_users }}"

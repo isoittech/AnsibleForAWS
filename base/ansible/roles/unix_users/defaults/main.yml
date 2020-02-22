@@ -1,0 +1,7 @@
+---
+unix_users:
+  - name: app-user
+    uid: 2101
+    group: app-user
+    state: present
+    comment: For application user    
