@@ -1,0 +1,63 @@
+---
+- name: check and create application directory
+  file:
+    path: "{{ application_dir }}/{{ app_name }}"
+    state: directory
+    recurse: yes
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: 0755
+  become: yes
+  tags:
+    - app
+    - "{{ app_name }}"
+
+- name: add java-app service at system
+  template:
+    src: java_app.service.j2
+    dest: "/etc/systemd/system/{{ app_name }}.service"
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+  tags:
+    - app
+    - "{{ app_name }}"
+
+- name: check and create application log directory
+  file: 
+    path: "{{ app_log_dir }}/{{ app_name }}"
+    state: directory
+    recurse: yes
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}" 
+    mode: 0755
+  become: yes
+  tags:
+    - app
+    - "{{ app_name }}"
+    - log
+
+- name: check and create heap dump log directory
+  file:
+    path: "{{ app_log_dir }}/{{ app_name }}/heap"
+    state: directory
+    recurse: yes
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: 0755
+  become: yes
+  tags:
+    - app
+    - "{{ app_name }}"
+    - log
+
+- name: enable automatically start java application service
+  systemd:
+    name: "{{ app_name }}.service"
+    enabled: yes
+  become: yes
+  tags:
+    - app
+    - "{{ app_name }}"
+    - systemd

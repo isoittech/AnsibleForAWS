@@ -20,3 +20,6 @@
     - java11
     - aws-cli
     - code-deploy
+    - unix_groups
+    - unix_users
+    - java_app_service

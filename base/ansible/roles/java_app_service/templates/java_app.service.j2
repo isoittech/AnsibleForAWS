@@ -1,0 +1,14 @@
+[Unit]
+Description = Sample SpringBoot WebApplication daemon
+After = syslog.target
+
+[Service]
+ExecStart = {{ application_dir }}/{{ app_dir_name }}/{{ app_name }}.jar
+Restart = always
+Type = simple
+User = {{ app_user }}
+Group = {{ app_user }}
+SuccessExitStatus = 143
+
+[Install]
+WantedBy = multi-user.target

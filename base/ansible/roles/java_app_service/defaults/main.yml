@@ -1,0 +1,7 @@
+---
+application_dir: /opt/app
+app_log_dir: /var/log/app
+app_user: app-user
+app_group: app-user
+app_dir_name: <<アプリケーションディレクトリ名>>
+app_name: <<アプリケーション名>>
