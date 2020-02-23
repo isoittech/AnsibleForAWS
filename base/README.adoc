@@ -55,6 +55,8 @@
 * base/vagrant/provisioning/aws_profiles/credentials.yours
 * base/vagrant/provisioning/Vagrantfile.yours
 
-また、アプリケーション用ユーザの公開鍵設定として下記を実施する。 +
-  ※既存の秘密鍵から公開鍵を生成する
-  ssh-keygen -yf ${private_key_file} > base/roles/unix_users/files/public.j2
+[%hardbreaks]
+また、アプリケーション用ユーザの公開鍵設定として下記を実施する。
+※既存の秘密鍵から公開鍵を生成する
+
+ ssh-keygen -yf ${private_key_file} > base/roles/unix_users/files/public.j2
