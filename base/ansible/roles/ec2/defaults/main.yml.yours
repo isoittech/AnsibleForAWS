@@ -35,4 +35,4 @@ aws:
     ec2:
       name: <<your instance name>>
       instance_type: t2.micro
-      image: ami-2a69be4c
+      image: ami-0af1df87db7b650f4
