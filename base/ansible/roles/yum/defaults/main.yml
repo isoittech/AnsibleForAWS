@@ -1,3 +1,5 @@
 ---
 yum_packages:
   - name: wget
+  # CodeDeployインストールに必要
+  - name: ruby
