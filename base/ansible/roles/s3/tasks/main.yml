@@ -1,0 +1,8 @@
+- name: Create an empty bucket
+  # s3_bucket:
+  #   name: "{{ s3.bucket.name }}"
+  #   state: present
+  aws_s3:
+    bucket: "{{ s3.bucket.name }}"
+    mode: create
+    permission: private

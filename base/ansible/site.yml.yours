@@ -6,6 +6,7 @@
   roles:
     - iam
     - ec2
+    - s3
   tasks:
     - name: Refresh inventory
       meta: refresh_inventory

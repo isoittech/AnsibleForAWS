@@ -54,6 +54,7 @@
 * base/vagrant/provisioning/aws_profiles/config.yours
 * base/vagrant/provisioning/aws_profiles/credentials.yours
 * base/vagrant/provisioning/Vagrantfile.yours
+* base/ansible/roles/s3/defaults/main.yml.yours
 
 [%hardbreaks]
 また、アプリケーション用ユーザの公開鍵設定として下記を実施する。
