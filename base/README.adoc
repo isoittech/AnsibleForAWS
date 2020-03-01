@@ -62,7 +62,7 @@
 
  ssh-keygen -yf ${private_key_file} > base/roles/unix_users/files/public.j2
 
-==== 展望
+== 展望
 
 * ALBへの対応
 * HTTPS化
