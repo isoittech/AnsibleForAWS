@@ -1,3 +1,4 @@
 .gradle/
 /base/VMs/provisioning/.vagrant/
 /base/sampleapp/sb-app/bin/
+.vagrant/
