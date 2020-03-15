@@ -1,3 +1,9 @@
 = AnsibleでAWSインフラ構築
 
+== 用途・目的
+
+AWSを使ったWebサービスの開発環境構築をｽｯと出来るようにする。
+
+== 詳細
+
 link:base/README.adoc[base/README.adoc]参照
