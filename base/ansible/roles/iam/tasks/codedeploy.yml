@@ -1,4 +1,13 @@
 ---
+# タグを指定してインスタンスIDを取得する
+- name: Get instance-id with tag
+  ec2_instance_info:
+    filters:
+      "tag:Name": java_app_udemy_list
+  register: ec2_ins_fact
+
+# - debug: var=ec2_ins_fact verbosity=1
+
 - name: Create service role for CodeDeploy
   iam_role:
     name: CodeDeployServiceRole
@@ -26,24 +35,23 @@
   changed_when: false
   # always_run: yes
 
-- name: Delete IAM policy (for role for instance profile) when instance profile already existing
-  iam_policy:
-    iam_name: CodeDeploy-EC2-Instance-Role
-    iam_type: role
-    policy_name: CodeDeploy-EC2-Permissions
-    state: absent
-  when: target_profile_count.stdout == "1"
-
-- name: Delete IAM role (for instance profile) when instance profile already existing
-  iam_role:
-    name: CodeDeploy-EC2-Instance-Role
-    state: absent
-  when: target_profile_count.stdout == "1"
-
-- name: Delete instance profile when already existing
-  shell: >-
-    aws iam delete-instance-profile \
-     --instance-profile-name CodeDeploy-EC2-Instance-Profile
+- block:
+  - name: Delete IAM policy (for role for instance profile) when instance profile already existing
+    iam_policy:
+      iam_name: CodeDeploy-EC2-Instance-Role
+      iam_type: role
+      policy_name: CodeDeploy-EC2-Permissions
+      state: absent
+  
+  - name: Delete IAM role (for instance profile) when instance profile already existing
+    iam_role:
+      name: CodeDeploy-EC2-Instance-Role
+      state: absent
+  
+  - name: Delete instance profile when already existing
+    shell: >-
+      aws iam delete-instance-profile \
+      --instance-profile-name CodeDeploy-EC2-Instance-Profile
   when: target_profile_count.stdout == "1"
 
 # IAM ROLEの作成 （Assume Role ポリシーを指定する）
@@ -84,3 +92,31 @@
     aws iam add-role-to-instance-profile \
      --instance-profile-name CodeDeploy-EC2-Instance-Profile \
      --role-name CodeDeploy-EC2-Instance-Role
+
+# EC2インスタンスにアタッチされたロールを入れ替える（削除→再アタッチ）ため、当該インスタンスIDにアタッチ済みのプロファイルを調べる
+- name: Investigate instance profile associated
+  shell: >-
+    aws ec2 describe-iam-instance-profile-associations \
+      --filters Name=instance-id,Values="{{ ec2_ins_fact.instances[0].instance_id }}"
+  register: result_associated_profile
+- set_fact:
+    association_id: "{{ result_associated_profile.stdout | regex_search(regexp,'\\1') | first }}"
+  vars:
+    regexp: '\"AssociationId\":\ \"(.*?)\"'
+# - debug: var=association_id
+# - debug: var=result_associated_profile.stdout
+
+# 当該インスタンスIDにアタッチ済みのプロファイルが、アタッチ対象のプロファイルであれば削除する
+- name: Remove instance profile if the associated is target profile.
+  shell: >-
+    aws ec2 disassociate-iam-instance-profile \
+      --association-id {{ association_id }}
+  when: result_associated_profile.stdout is search("CodeDeploy-EC2-Instance-Profile")
+
+# EC2インスタンスにロールをアタッチする
+- name: Attach role to ec2 instance
+  shell: >-
+    aws ec2 associate-iam-instance-profile \
+      --instance-id "{{ ec2_ins_fact.instances[0].instance_id }}" \
+      --iam-instance-profile Name=CodeDeploy-EC2-Instance-Profile
+  register: result_associate

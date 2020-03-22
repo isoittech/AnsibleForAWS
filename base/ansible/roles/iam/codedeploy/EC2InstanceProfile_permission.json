@@ -7,6 +7,7 @@
             "s3:List*"
         ],
         "Resource": [
+            "arn:aws:s3:::ansible4aws-sb-app/*",
             "arn:aws:s3:::aws-codedeploy-ap-northeast-1/*"
         ]
     }]

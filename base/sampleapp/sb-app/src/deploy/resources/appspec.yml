@@ -1,0 +1,28 @@
+version: 0.0
+os: linux
+files:
+- source: sb-app.jar
+  destination: /opt/app/sb-app/
+  overwrite: true
+- source: deploy/resources/sb-app.conf
+  destination: /opt/app/sb-app/
+  overwrite: true
+
+permissions:
+  - object: /opt/app/sb-app
+    pattern: "*.jar"
+    owner: root
+    group: root
+    mode: 755
+    type:
+      - file
+
+hooks:
+  ApplicationStop:
+  - location: deploy/scripts/appstop.sh
+    timeout: 300
+    runas: root
+  ApplicationStart:
+  - location: deploy/scripts/appstart.sh
+    timeout: 300
+    runas: root

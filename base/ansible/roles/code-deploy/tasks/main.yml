@@ -1,23 +1,23 @@
 ---
-- name: CodeDeploy Agentインストール状態確認
+- name: check status of CodeDeploy Agent installing
   shell: rpm -qa codedeploy-agent
   register: codedeploy_package
   check_mode: no
   changed_when: false
   failed_when: false
 
-- name: CodeDeploy Agentインストール
+- name: install CodeDeploy Agent
   shell: bash -lc "cd /tmp && wget https://aws-codedeploy-ap-northeast-1.s3.amazonaws.com/latest/install && chmod +x ./install && ./install auto"
   when: codedeploy_package.stdout == ""
 
-- name: CodeDeploy Agentサービス定義ファイルのパーミッション変更
+- name: change permission of the CodeDeploy Agent service definition file
   file:
     path: /usr/lib/systemd/system/codedeploy-agent.service
     owner: root
     group: root
     mode: 0644
 
-- name: CodeDeploy Agentの設定ファイル配置
+- name: deploy CodeDeploy Agent config file
   template:
     src: codedeployagent.yml.j2
     dest: /etc/codedeploy-agent/conf/codedeployagent.yml
@@ -25,8 +25,8 @@
     group: root
     mode: 0644
 
-- name: CodeDeploy Agentサービス登録
+- name: register service of CodeDeploy Agent
   service:
     name: codedeploy-agent
     enabled: yes
-    state: started
+    state: restarted

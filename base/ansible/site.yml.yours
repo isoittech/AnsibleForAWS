@@ -3,6 +3,7 @@
   hosts: localhost
   connection: local
   gather_facts: False
+ # debugger: on_failed # 有効化した場合、エラー時にプロンプト状態になる。
   roles:
     - iam
     - ec2
